@@ -786,7 +786,9 @@ checksum = "a21f936df1771bf62b77f047b726c4625ff2e8aa607c01ec06e5a05bd8463401"
 dependencies = [
  "android-tzdata",
  "iana-time-zone",
+ "js-sys",
  "num-traits",
+ "wasm-bindgen",
  "windows-targets 0.52.6",
 ]
 
@@ -1644,12 +1646,18 @@ dependencies = [
 name = "example-script"
 version = "0.1.0"
 dependencies = [
+ "alloy-sol-types",
+ "chrono",
  "clap",
+ "ethers-core",
+ "fibonacci-lib",
  "hex",
  "serde",
  "serde_json",
- "sp1-build",
+ "sp1-build 3.0.0",
+ "sp1-helper",
  "sp1-sdk",
+ "tracing",
 ]
 
 [[package]]
@@ -1726,9 +1734,21 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28dea519a9695b9977216879a3ebfddf92f1c08c05d984f8996aecd6ecdc811d"
 
 [[package]]
+name = "fibonacci-lib"
+version = "0.1.0"
+dependencies = [
+ "alloy-sol-types",
+]
+
+[[package]]
 name = "fibonacci-program"
 version = "1.1.0"
 dependencies = [
+ "alloy-sol-types",
+ "chrono",
+ "ethers-core",
+ "fibonacci-lib",
+ "serde",
  "sp1-zkvm",
 ]
 
@@ -4516,6 +4536,19 @@ dependencies = [
 
 [[package]]
 name = "sp1-build"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8216e07a9c463c6ee091cdc817cfc10c25446cfd4d020812818177e0a3d1c943"
+dependencies = [
+ "anyhow",
+ "cargo_metadata",
+ "chrono",
+ "clap",
+ "dirs",
+]
+
+[[package]]
+name = "sp1-build"
 version = "3.0.0"
 source = "git+https://github.com/succinctlabs/sp1?rev=d13675665bff079b6da4f115cb322eadca6bb50e#d13675665bff079b6da4f115cb322eadca6bb50e"
 dependencies = [
@@ -4634,6 +4667,15 @@ source = "git+https://github.com/succinctlabs/sp1?rev=d13675665bff079b6da4f115cb
 dependencies = [
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "sp1-helper"
+version = "2.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7f08124c62d09764810783355cff518477e3f36c8e83343623859afeca6f3eeb"
+dependencies = [
+ "sp1-build 2.0.0",
 ]
 
 [[package]]
