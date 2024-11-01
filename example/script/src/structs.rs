@@ -66,5 +66,3 @@ pub struct MessageData {
     pub data: String,
     pub salt: String,
 }
-
-fn main (){}

@@ -21,14 +21,14 @@ wasm-pack build --target nodejs --dev
 
 ### Generate proofs
 
-Next, run the script to generate `fibonacci_groth16_proof.json` and `fibonacci_plonk_proof.json`. From the `example/script` directory, run:
+Next, run the script to generate `DOB-Attestaion_groth16_proof.json` and `fDOB-Attestaion_plonk_proof.json`. From the `example/script` directory, run:
 
 ```bash
 cargo run --release -- --mode groth16
 cargo run --release -- --mode plonk
 ```
 
-By default, this will *not* generate fresh proofs from the program in `example/fibonacci-program`. To generate fresh proofs, run:
+By default, this will *not* generate fresh proofs from the program in `example/dob-program`. To generate fresh proofs, run:
 
 ```bash
 cargo run --release -- --mode groth16 --prove
@@ -37,7 +37,7 @@ cargo run --release -- --mode plonk --prove
 
 ### Verify proofs in wasm
 
-To verify proofs in wasm, run the following command from the `example/wasm_example` directory:
+To verify proofs in wasm, run the following command from the `example/wasm_verifier` directory:
 
 ```bash
 pnpm install

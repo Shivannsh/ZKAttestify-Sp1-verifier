@@ -11,9 +11,10 @@ clap = { version = "4.0", features = ["derive", "env"] }
 tracing = "0.1.40"
 hex = "0.4.3"
 alloy-sol-types = { workspace = true }
-fibonacci-lib = { path = "../lib" }
+dob-lib = { path = "../lib" }
 ethers-core = { version = "2.0.14"}
 chrono = "=0.4.38"
+anyhow = "1.0.40" 
 
 [build-dependencies]
 sp1-build.workspace = true

@@ -1252,6 +1252,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "dob-lib"
+version = "0.1.0"
+dependencies = [
+ "alloy-sol-types",
+]
+
+[[package]]
+name = "dob-program"
+version = "1.1.0"
+dependencies = [
+ "alloy-sol-types",
+ "chrono",
+ "dob-lib",
+ "ethers-core",
+ "serde",
+ "sp1-zkvm",
+]
+
+[[package]]
 name = "downcast-rs"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1647,10 +1666,11 @@ name = "example-script"
 version = "0.1.0"
 dependencies = [
  "alloy-sol-types",
+ "anyhow",
  "chrono",
  "clap",
+ "dob-lib",
  "ethers-core",
- "fibonacci-lib",
  "hex",
  "serde",
  "serde_json",
@@ -1732,25 +1752,6 @@ name = "fiat-crypto"
 version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "28dea519a9695b9977216879a3ebfddf92f1c08c05d984f8996aecd6ecdc811d"
-
-[[package]]
-name = "fibonacci-lib"
-version = "0.1.0"
-dependencies = [
- "alloy-sol-types",
-]
-
-[[package]]
-name = "fibonacci-program"
-version = "1.1.0"
-dependencies = [
- "alloy-sol-types",
- "chrono",
- "ethers-core",
- "fibonacci-lib",
- "serde",
- "sp1-zkvm",
-]
 
 [[package]]
 name = "fixed-hash"
