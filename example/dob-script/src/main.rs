@@ -85,8 +85,8 @@ fn parse_signature(input_data: &InputData) -> Signature {
 
 fn main() {
     utils::setup_logger();
-    let args = Cli::parse();
-    let input_data = parse_input_data("./input.json");
+    let args = Cli::parse();   
+    let input_data = parse_input_data("/example/dob-script/src/input.json");
 
     let signer_address: H160 = input_data.signer.parse().unwrap();
     let message = build_message(&input_data);

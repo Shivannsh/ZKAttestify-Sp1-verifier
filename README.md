@@ -5,8 +5,8 @@ This repo demonstrates how to verify Groth16 and Plonk proofs in browser. We wra
 ## Repo overview
 
 - `verifier`: The rust sp1 verifier crate with wasm bindings.
-- `example/fibonacci-program`: A simple fibonacci SP1 program to verify.
-- `example/fibonacci-script`: A simple script to generate proofs in a json format.
+- `example/dob-program`: A SP1 program to verify date of birth offchain attestation .
+- `example/dob-script`: A simple script to generate proofs in a json format.
 - `example/wasm_example`: A short javascript example that verifies proofs in wasm.
 
 ## Usage
@@ -21,7 +21,7 @@ wasm-pack build --target nodejs --dev
 
 ### Generate proofs
 
-Next, run the script to generate `DOB-Attestaion_groth16_proof.json` and `fDOB-Attestaion_plonk_proof.json`. From the `example/script` directory, run:
+Next, run the script to generate `DOB-Attestaion_groth16_proof.json` and `DOB-Attestaion_plonk_proof.json`. From the `example/script` directory, run:
 
 ```bash
 cargo run --release -- --mode groth16
