@@ -43,3 +43,12 @@ To verify proofs in wasm, run the following command from the `example/wasm_verif
 pnpm install
 pnpm run test
 ```
+
+### **How Zero-Knowledge Proof Generation is happening**
+1. The system employs **Succinct ZKVM** to validate the attestation's integrity without exposing the actual data.
+2. The ZKVM re-generates the **EIP712 signature** by calculating:
+   - **DomainHash**
+   - **MessageHash**  
+   This confirms the attestation is untampered.
+3. It checks specific conditions, such as verifying if the individual's date of birth shows they are above 18.
+4. This proof can be used anywhere where you want to prove that you are 18+ without actually revealing your actual Date of Birth.
