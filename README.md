@@ -21,7 +21,7 @@ wasm-pack build --target nodejs --dev
 
 ### Generate proofs
 
-Next, run the script to generate `DOB-Attestaion_groth16_proof.json` and `DOB-Attestaion_plonk_proof.json`. From the `example/script` directory, run:
+Next, run the script to generate `DOB-Attestaion_groth16_proof.json` and `DOB-Attestaion_plonk_proof.json`. From the `example/dob-script` directory, run:
 
 ```bash
 cargo run --release -- --mode groth16
@@ -30,6 +30,11 @@ cargo run --release -- --mode plonk
 
 By default, this will *not* generate fresh proofs from the program in `example/dob-program`. To generate fresh proofs, run:
 
+```bash
+SP1_PROVER=network SP1_PRIVATE_KEY=$SP1_PRIVATE_KEY cargo run --release -- --mode groth16 --prove
+SP1_PROVER=network SP1_PRIVATE_KEY=$SP1_PRIVATE_KEY cargo run --release -- --mode plonk --prove
+```
+We used SP1 prover network in our example . You can also run it locally using the commands:
 ```bash
 cargo run --release -- --mode groth16 --prove
 cargo run --release -- --mode plonk --prove
