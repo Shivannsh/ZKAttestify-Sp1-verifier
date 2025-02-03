@@ -2,6 +2,22 @@
 
 This repo demonstrates how to verify Groth16 and Plonk proofs in browser. We wrap the [`sp1-verifier`](https://github.com/succinctlabs/sp1) crate in wasm bindings, and invoke it from javascript.
 
+## Prerequisites
+
+- Rust (install via https://rustup.rs/)
+- wasm-pack (`cargo install wasm-pack`)
+- LLVM 16 and related tools
+  ```bash
+  wget https://apt.llvm.org/llvm.sh
+  chmod +x llvm.sh
+  sudo ./llvm.sh 16
+  ```
+- Environment variables:
+  ```bash
+  export LLVM_SYS_160_PREFIX=/usr/lib/llvm-16
+  export SP1_LLVM_PATH=/usr/lib/llvm-16/bin/llvm-config
+  ```
+
 ## Repo overview
 
 - `verifier`: The rust sp1 verifier crate with wasm bindings.

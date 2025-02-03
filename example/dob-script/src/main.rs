@@ -1,7 +1,7 @@
 mod structs;
 use clap::Parser;
 use serde::{Deserialize, Serialize};
-use sp1_sdk::{utils, HashableKey, ProverClient, SP1ProofWithPublicValues, SP1Stdin};
+use sp1_sdk::{include_elf, utils, HashableKey, ProverClient, SP1ProofWithPublicValues, SP1Stdin};
 use ethers_core::types::{H160, Signature, H256};
 use ethers_core::abi::Token;
 use ethers_core::types::transaction::eip712::EIP712Domain;
@@ -10,7 +10,7 @@ use std::fs;
 use structs::{Attest, InputData};
 
 /// ELF file for the Succinct RISC-V zkVM.
-pub const ADDRESS_ELF: &[u8] = include_bytes!("../../../elf/riscv32im-succinct-zkvm-elf");
+pub const ADDRESS_ELF: &[u8] = include_elf!("dob-program");
 const YEAR_IN_SECONDS: u64 = 365 * 24 * 60 * 60;
 const THRESHOLD_AGE: u64 = 18 * YEAR_IN_SECONDS;
 
@@ -86,7 +86,7 @@ fn parse_signature(input_data: &InputData) -> Signature {
 fn main() {
     utils::setup_logger();
     let args = Cli::parse();   
-    let input_data = parse_input_data("/example/dob-script/src/input.json");
+    let input_data = parse_input_data("/home/gautam/Desktop/ZKAttestify-Sp1-verifier/example/dob-script/src/input.json");
 
     let signer_address: H160 = input_data.signer.parse().unwrap();
     let message = build_message(&input_data);
@@ -101,15 +101,15 @@ fn main() {
     stdin.write(&message);
     stdin.write(&domain_separator);
 
-    let client = ProverClient::new();
+    let client = ProverClient::from_env();
     let (pk, vk) = client.setup(ADDRESS_ELF);
     let proof_path = format!("../binaries/DOB-Attestaion_{}_proof.bin", args.mode);
     let json_path = format!("../json/DOB-Attestaion_{}_proof.json", args.mode);
 
     if args.prove {
         let proof = match args.mode.as_str() {
-            "groth16" => client.prove(&pk, stdin).groth16().run().expect("Groth16 proof generation failed"),
-            "plonk" => client.prove(&pk, stdin).plonk().run().expect("Plonk proof generation failed"),
+            "groth16" => client.prove(&pk, &stdin).groth16().run().expect("Groth16 proof generation failed"),
+            "plonk" => client.prove(&pk, &stdin).plonk().run().expect("Plonk proof generation failed"),
             _ => panic!("Invalid proof mode"),
         };
         proof.save(&proof_path).expect("Failed to save proof");
@@ -117,7 +117,7 @@ fn main() {
 
     let proof = SP1ProofWithPublicValues::load(&proof_path).expect("Failed to load proof");
     let fixture = ProofData {
-        proof: hex::encode(proof.raw_with_checksum()),
+        proof: hex::encode(proof.bytes()),
         public_inputs: hex::encode(proof.public_values),
         vkey_hash: vk.bytes32(),
         mode: args.mode.clone(),
