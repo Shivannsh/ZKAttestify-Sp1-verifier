@@ -47,8 +47,8 @@ cargo run --release -- --mode plonk
 By default, this will *not* generate fresh proofs from the program in `example/dob-program`. To generate fresh proofs, run:
 
 ```bash
-SP1_PROVER=network SP1_PRIVATE_KEY=$SP1_PRIVATE_KEY cargo run --release -- --mode groth16 --prove
-SP1_PROVER=network SP1_PRIVATE_KEY=$SP1_PRIVATE_KEY cargo run --release -- --mode plonk --prove
+SP1_PROVER=network NETWORK_PRIVATE_KEY=$SP1_PRIVATE_KEY cargo run --release -- --mode groth16 --prove
+SP1_PROVER=network NETWORK_PRIVATE_KEY=$SP1_PRIVATE_KEY cargo run --release -- --mode plonk --prove
 ```
 We used SP1 prover network in our example . You can also run it locally using the commands:
 ```bash
