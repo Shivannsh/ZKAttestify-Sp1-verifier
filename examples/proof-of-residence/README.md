@@ -1,92 +1,62 @@
-# SP1 Project Template
+# SP1 Wasm verification example
 
-This is a template for creating an end-to-end [SP1](https://github.com/succinctlabs/sp1) project
-that can generate a proof of any RISC-V program.
+This repo demonstrates how to verify Groth16 and Plonk proofs in browser. We wrap the [`sp1-verifier`](https://github.com/succinctlabs/sp1) crate in wasm bindings, and invoke it from javascript.
 
-## Requirements
+## Prerequisites
 
-- [Rust](https://rustup.rs/)
-- [SP1](https://docs.succinct.xyz/getting-started/install.html)
+- Rust (install via https://rustup.rs/)
+- SP1 ( `curl -L https://sp1up.succinct.xyz | bash` )
+## Repo overview
 
-## Running the Project
+- `verifier`: The rust sp1 verifier crate with wasm bindings.
+- `example/proof-of-residence/program`: A SP1 program to verify country using offchain attestation .
+- `example/proof-of-residence/script`: A simple script to generate proofs in a json format.
+- `example/wasm_example`: A short javascript example that verifies proofs in wasm.
 
-There are four main ways to run this project: build a program, execute a program, generate a core proof, and
-generate an EVM-compatible proof.
+## Usage
 
-### Build the Program
+### Wasm Bindings
 
-To build the program, run the following command:
+First, generate the wasm library for the verifier. From the `verifier` directory, run
 
-```sh
-cd program
-cargo prove build
+```bash
+wasm-pack build --target nodejs --dev 
 ```
 
-### Execute the Program
+### Generate proofs
 
-To run the program without generating a proof:
+Next, run the script to generate `POR-Attestaion_groth16_proof.json` and `POR-Attestaion_plonk_proof.json`. From the `example/proof-of-residence/script` directory, run:
 
-```sh
-cd script
-cargo run --release -- --execute
+```bash
+cargo run --release -- --mode groth16
+cargo run --release -- --mode plonk
 ```
 
-This will execute the program and display the output.
+By default, this will *not* generate fresh proofs from the program in `example/proof-of-residence/program`. To generate fresh proofs, run:
 
-### Generate a Core Proof
-
-To generate a core proof for your program:
-
-```sh
-cd script
-cargo run --release -- --prove
+```bash
+SP1_PROVER=network NETWORK_PRIVATE_KEY=$SP1_PRIVATE_KEY cargo run --release -- --mode groth16 --prove
+SP1_PROVER=network NETWORK_PRIVATE_KEY=$SP1_PRIVATE_KEY cargo run --release -- --mode plonk --prove
+```
+We used SP1 prover network in our example . You can also run it locally using the commands:
+```bash
+cargo run --release -- --mode groth16 --prove
+cargo run --release -- --mode plonk --prove
 ```
 
-### Generate an EVM-Compatible Proof
+### Verify proofs in wasm
 
-> [!WARNING]
-> You will need at least 128GB RAM to generate a Groth16 or PLONK proof.
+To verify proofs in wasm, run the following command from the `example/wasm_verifier` directory:
 
-To generate a proof that is small enough to be verified on-chain and verifiable by the EVM:
-
-```sh
-cd script
-cargo run --release --bin evm -- --system groth16
+```bash
+pnpm install
+pnpm run test
 ```
 
-this will generate a Groth16 proof. If you want to generate a PLONK proof, run the following command:
-
-```sh
-cargo run --release --bin evm -- --system plonk
-```
-
-These commands will also generate fixtures that can be used to test the verification of SP1 zkVM proofs
-inside Solidity.
-
-### Retrieve the Verification Key
-
-To retrieve your `programVKey` for your on-chain contract, run the following command in `script`:
-
-```sh
-cargo run --release --bin vkey
-```
-
-## Using the Prover Network
-
-We highly recommend using the Succinct prover network for any non-trivial programs or benchmarking purposes. For more information, see the [setup guide](https://docs.succinct.xyz/docs/generating-proofs/prover-network).
-
-To get started, copy the example environment file:
-
-```sh
-cp .env.example .env
-```
-
-Then, set the `SP1_PROVER` environment variable to `network` and set the `NETWORK_PRIVATE_KEY`
-environment variable to your whitelisted private key.
-
-For example, to generate an EVM-compatible proof using the prover network, run the following
-command:
-
-```sh
-SP1_PROVER=network NETWORK_PRIVATE_KEY=... cargo run --release --bin evm
-```
+### **How Zero-Knowledge Proof Generation is happening**
+1. The system employs **Succinct ZKVM** to validate the attestation's integrity without exposing the actual data.
+2. The ZKVM re-generates the **EIP712 signature** by calculating:
+   - **DomainHash**
+   - **MessageHash**  
+   This confirms the attestation is untampered.
+3. Checks the Country and Generate a ZKP of the same
