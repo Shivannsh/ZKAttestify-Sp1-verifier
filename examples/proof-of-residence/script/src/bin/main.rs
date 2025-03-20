@@ -1,18 +1,19 @@
 mod structs;
-mod signature;  
+mod signature;
 use clap::Parser;
 use serde::{Deserialize, Serialize};
 use sp1_sdk::{include_elf, utils, HashableKey, ProverClient, SP1ProofWithPublicValues, SP1Stdin};
-use ethers_core::types::H160;
+use ethers_core::types::{H160, Signature, H256};
+use ethers_core::abi::Token;
+use ethers_core::types::transaction::eip712::EIP712Domain;
+use ethers_core::utils::keccak256;
 use std::fs;
-use structs::InputData;
-use signature::{create_domain_separator, build_message, parse_signature};  // Add this line
+use structs::{Attest, InputData};
+use signature::{create_domain_separator, build_message, parse_signature};
 
-
-/// ELF file for the Succinct RISC-V zkVM.
-pub const ADDRESS_ELF: &[u8] = include_elf!("dob-program");
-const YEAR_IN_SECONDS: u64 = 365 * 24 * 60 * 60;
-const THRESHOLD_AGE: u64 = 18 * YEAR_IN_SECONDS;
+/// The ELF (executable and linkable format) file for the Succinct RISC-V zkVM.
+pub const FIBONACCI_ELF: &[u8] = include_elf!("fibonacci-program");
+const RESIDENT_COUNTRY: &str = "India";
 
 #[derive(Serialize, Deserialize)]
 struct ProofData {
@@ -36,32 +37,31 @@ fn parse_input_data(file_path: &str) -> InputData {
     serde_json::from_str(&json_str).expect("Failed to parse JSON input")
 }
 
-// Main function for generating zkVM proofs
+
+
 fn main() {
     utils::setup_logger();
     let args = Cli::parse();   
-    let input_data = parse_input_data("/Users/shivanshgupta/Desktop/ZKAttestify-Sp1-verifier/example/dob-script/src/input.json");
+    let input_data = parse_input_data("/home/gautam/Desktop/verifier/ZKAttestify-Sp1-verifier/example/proof-of-residence/script/src/bin/input.json");
 
-    // Prepare inputs for zkVM
     let signer_address: H160 = input_data.signer.parse().unwrap();
     let message = build_message(&input_data);
     let domain_separator = create_domain_separator(&input_data);
     let signature = parse_signature(&input_data);
 
-    // Write inputs to zkVM stdin
+
     let mut stdin = SP1Stdin::new();
     stdin.write(&signer_address);
     stdin.write(&signature);
-    stdin.write(&(THRESHOLD_AGE));  // threshold age in seconds
+    stdin.write(&RESIDENT_COUNTRY.to_string());  
     stdin.write(&(chrono::Utc::now().timestamp() as u64));
     stdin.write(&message);
     stdin.write(&domain_separator);
 
-    // Setup prover and generate proof
     let client = ProverClient::from_env();
-    let (pk, vk) = client.setup(ADDRESS_ELF);
-    let proof_path = format!("../binaries/DOB-Attestaion_{}_proof.bin", args.mode);
-    let json_path = format!("../json/DOB-Attestaion_{}_proof.json", args.mode);
+    let (pk, vk) = client.setup(FIBONACCI_ELF);
+    let proof_path = format!("/home/gautam/Desktop/verifier/ZKAttestify-Sp1-verifier/example/proof-of-residence/binaries/POR-Attestaion_{}_proof.bin", args.mode);
+    let json_path = format!("/home/gautam/Desktop/verifier/ZKAttestify-Sp1-verifier/example/proof-of-residence/json/POR-Attestaion_{}_proof.json", args.mode);
 
     if args.prove {
         let proof = match args.mode.as_str() {
@@ -72,7 +72,6 @@ fn main() {
         proof.save(&proof_path).expect("Failed to save proof");
     }
 
-    // Create proof data and save as JSON
     let proof = SP1ProofWithPublicValues::load(&proof_path).expect("Failed to load proof");
     let fixture = ProofData {
         proof: hex::encode(proof.bytes()),
@@ -80,6 +79,10 @@ fn main() {
         vkey_hash: vk.bytes32(),
         mode: args.mode.clone(),
     };
+
+    // Create directories if they don't exist
+    std::fs::create_dir_all("../binaries").expect("Failed to create binaries directory");
+    std::fs::create_dir_all("../json").expect("Failed to create json directory");
 
     fs::write(&json_path, serde_json::to_string(&fixture).expect("Failed to serialize proof"))
         .expect("Failed to write JSON proof");
