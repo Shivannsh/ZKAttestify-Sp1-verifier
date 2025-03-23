@@ -14,13 +14,13 @@ import assert from 'node:assert'
 export const fromHexString = (hexString) =>
     Uint8Array.from(hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
 
-const files = fs.readdirSync("../json");
+const files = fs.readdirSync("../dob/json");
 
 // Iterate through each file in the data directory
 for (const file of files) {
     try {
         // Read and parse the JSON content of the file
-        const fileContent = fs.readFileSync(path.join("../json", file), 'utf8');
+        const fileContent = fs.readFileSync(path.join("../dob/json", file), 'utf8');
         const proof_json = JSON.parse(fileContent);
 
         // Determine the ZKP type (Groth16 or Plonk) based on the filename

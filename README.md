@@ -6,8 +6,12 @@ This repo demonstrates how to verify Groth16 and Plonk proofs in browser. We wra
 
 - Rust (install via https://rustup.rs/)
 - SP1 ( `curl -L https://sp1up.succinct.xyz | bash` )
-## Repo overview
 
+## Schemas Used in Examples 
+-  `Proof of Age (DOB)` : [Click here](https://sepolia.easscan.org/schema/view/0xe102b6f4e9491f87a8ca24a7bb9ccab0bdbc57cc2d58dacc38295c349f17542e)
+- `Proof of residence` : [Click here](https://sepolia.easscan.org/schema/view/0x0cc24a3c3f7839c54a809826938052e8c9d8c0f3b3b73d1a69f3126f01887991)
+
+## Repo overview
 - `verifier`: The rust sp1 verifier crate with wasm bindings.
 - `example/dob/dob-program`: A SP1 program to verify date of birth offchain attestation .
 - `example/dob/dob-script`: A simple script to generate proofs in a json format.
@@ -25,14 +29,14 @@ wasm-pack build --target nodejs --dev
 
 ### Generate proofs
 
-Next, run the script to generate `DOB-Attestaion_groth16_proof.json` and `DOB-Attestaion_plonk_proof.json`. From the `example/dob-script` directory, run:
+Next, run the script to generate `DOB-Attestaion_groth16_proof.json` and `DOB-Attestaion_plonk_proof.json`. From the `examples/dob/dob-script` directory, run:
 
 ```bash
 cargo run --release -- --mode groth16
 cargo run --release -- --mode plonk
 ```
 
-By default, this will *not* generate fresh proofs from the program in `example/dob-program`. To generate fresh proofs, run:
+By default, this will *not* generate fresh proofs from the program in `examples/dob/dob-program`. To generate fresh proofs, run:
 
 ```bash
 SP1_PROVER=network NETWORK_PRIVATE_KEY=$SP1_PRIVATE_KEY cargo run --release -- --mode groth16 --prove

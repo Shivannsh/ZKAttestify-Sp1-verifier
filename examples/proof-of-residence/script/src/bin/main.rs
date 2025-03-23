@@ -42,7 +42,7 @@ fn parse_input_data(file_path: &str) -> InputData {
 fn main() {
     utils::setup_logger();
     let args = Cli::parse();   
-    let input_data = parse_input_data("/home/gautam/Desktop/verifier/ZKAttestify-Sp1-verifier/example/proof-of-residence/script/src/bin/input.json");
+    let input_data = parse_input_data("src/bin/input.json");
 
     let signer_address: H160 = input_data.signer.parse().unwrap();
     let message = build_message(&input_data);
@@ -60,8 +60,8 @@ fn main() {
 
     let client = ProverClient::from_env();
     let (pk, vk) = client.setup(FIBONACCI_ELF);
-    let proof_path = format!("/home/gautam/Desktop/verifier/ZKAttestify-Sp1-verifier/example/proof-of-residence/binaries/POR-Attestaion_{}_proof.bin", args.mode);
-    let json_path = format!("/home/gautam/Desktop/verifier/ZKAttestify-Sp1-verifier/example/proof-of-residence/json/POR-Attestaion_{}_proof.json", args.mode);
+    let proof_path = format!("../binaries/POR-Attestaion_{}_proof.bin", args.mode);
+    let json_path = format!("../json/POR-Attestaion_{}_proof.json", args.mode);
 
     if args.prove {
         let proof = match args.mode.as_str() {

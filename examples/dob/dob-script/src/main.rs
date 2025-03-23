@@ -40,7 +40,7 @@ fn parse_input_data(file_path: &str) -> InputData {
 fn main() {
     utils::setup_logger();
     let args = Cli::parse();   
-    let input_data = parse_input_data("/Users/shivanshgupta/Desktop/ZKAttestify-Sp1-verifier/example/dob-script/src/input.json");
+    let input_data = parse_input_data("src/input.json");
 
     // Prepare inputs for zkVM
     let signer_address: H160 = input_data.signer.parse().unwrap();
