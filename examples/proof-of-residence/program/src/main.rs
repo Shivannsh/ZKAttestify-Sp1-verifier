@@ -6,7 +6,7 @@ sp1_zkvm::entrypoint!(main);
 mod signature_verification;
 
 use alloy_sol_types::SolType;
-use fibonacci_lib::PublicValuesStruct;
+use proof_residence_lib::PublicValuesStruct;
 use ethers_core::types::{RecoveryMessage, Signature, H160, H256, Address};
 use ethers_core::abi::{decode, ParamType, Token};
 use ethers_core::utils::keccak256;
@@ -77,13 +77,11 @@ pub fn main() {
     let current_timestamp: u64 = sp1_zkvm::io::read();
     let message: Attest = sp1_zkvm::io::read();
     let domain_separator: H256 = sp1_zkvm::io::read();
-
+    
         // Verify the ECDSA signature
         if let Err(e) = verify_signature(signer_address, signature, &message, &domain_separator) {
             panic!("{}", e);
         }
-    
-
     
     let signer_address_bytes: [u8; 20] = signer_address.into();
     let recipient_address_bytes: [u8; 20] = message.recipient.into();
@@ -101,6 +99,7 @@ pub fn main() {
             attest_time: message.time,
             receipent_address: recipient_address_bytes.into(),
             domain_seperator: domain_separator_bytes.into(),
+            
         };
         sp1_zkvm::io::commit_slice(&PublicValuesStruct::abi_encode(&public_values));
     }

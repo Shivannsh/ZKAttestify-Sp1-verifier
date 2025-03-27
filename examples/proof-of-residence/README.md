@@ -32,7 +32,7 @@ cargo run --release -- --mode groth16
 cargo run --release -- --mode plonk
 ```
 
-By default, this will *not* generate fresh proofs from the program in `example/proof-of-residence/program`. To generate fresh proofs, run:
+By default, this will *not* generate fresh proofs from the program in `example/proof-of-residence/program`. To generate fresh proofs, from the `example/proof-of-residence/script` directory, run:
 
 ```bash
 SP1_PROVER=network NETWORK_PRIVATE_KEY=$SP1_PRIVATE_KEY cargo run --release -- --mode groth16 --prove

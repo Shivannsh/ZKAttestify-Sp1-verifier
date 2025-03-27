@@ -3,16 +3,14 @@ mod signature;
 use clap::Parser;
 use serde::{Deserialize, Serialize};
 use sp1_sdk::{include_elf, utils, HashableKey, ProverClient, SP1ProofWithPublicValues, SP1Stdin};
-use ethers_core::types::{H160, Signature, H256};
-use ethers_core::abi::Token;
-use ethers_core::types::transaction::eip712::EIP712Domain;
-use ethers_core::utils::keccak256;
+use ethers_core::types::H160;
 use std::fs;
-use structs::{Attest, InputData};
+use structs::InputData;
+use std::time::Instant;
 use signature::{create_domain_separator, build_message, parse_signature};
 
 /// The ELF (executable and linkable format) file for the Succinct RISC-V zkVM.
-pub const FIBONACCI_ELF: &[u8] = include_elf!("fibonacci-program");
+pub const PROOF_ADDRESS_ELF: &[u8] = include_elf!("proof-of-residence-program");
 const RESIDENT_COUNTRY: &str = "India";
 
 #[derive(Serialize, Deserialize)]
@@ -41,8 +39,9 @@ fn parse_input_data(file_path: &str) -> InputData {
 
 fn main() {
     utils::setup_logger();
+    let start = Instant::now();
     let args = Cli::parse();   
-    let input_data = parse_input_data("src/bin/input.json");
+    let input_data = parse_input_data("src/input.json");
 
     let signer_address: H160 = input_data.signer.parse().unwrap();
     let message = build_message(&input_data);
@@ -59,7 +58,7 @@ fn main() {
     stdin.write(&domain_separator);
 
     let client = ProverClient::from_env();
-    let (pk, vk) = client.setup(FIBONACCI_ELF);
+    let (pk, vk) = client.setup(PROOF_ADDRESS_ELF);
     let proof_path = format!("../binaries/POR-Attestaion_{}_proof.bin", args.mode);
     let json_path = format!("../json/POR-Attestaion_{}_proof.json", args.mode);
 
@@ -86,5 +85,7 @@ fn main() {
 
     fs::write(&json_path, serde_json::to_string(&fixture).expect("Failed to serialize proof"))
         .expect("Failed to write JSON proof");
+    let duration = start.elapsed();
+    println!("Time elapsed in generating proof is: {:?}", duration);
     println!("Successfully generated JSON proof for the program!");
 }

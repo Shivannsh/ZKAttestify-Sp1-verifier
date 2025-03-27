@@ -5,6 +5,7 @@ use serde::{Deserialize, Serialize};
 use sp1_sdk::{include_elf, utils, HashableKey, ProverClient, SP1ProofWithPublicValues, SP1Stdin};
 use ethers_core::types::H160;
 use std::fs;
+use std::time::Instant;
 use structs::InputData;
 use signature::{create_domain_separator, build_message, parse_signature};
 
@@ -39,6 +40,7 @@ fn parse_input_data(file_path: &str) -> InputData {
 // Main function for generating zkVM proofs
 fn main() {
     utils::setup_logger();
+    let start = Instant::now();
     let args = Cli::parse();   
     let input_data = parse_input_data("src/input.json");
 
@@ -83,5 +85,7 @@ fn main() {
 
     fs::write(&json_path, serde_json::to_string(&fixture).expect("Failed to serialize proof"))
         .expect("Failed to write JSON proof");
+    let duration = start.elapsed();
+    println!("Time elapsed in generating proof is: {:?}", duration);
     println!("Successfully generated JSON proof for the program!");
 }
