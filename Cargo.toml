@@ -1,5 +1,5 @@
 [workspace]
-members = ["verifier", "examples/dob/dob-program", "examples/dob/dob-script"]
+members = ["verifier", "examples/dob/dob-program", "examples/dob/dob-script","examples/proof-of-residence/program","examples/proof-of-residence/script"]
 resolver = "2"
 
 [workspace.dependencies]
