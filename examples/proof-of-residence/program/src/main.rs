@@ -7,9 +7,8 @@ mod signature_verification;
 
 use alloy_sol_types::SolType;
 use proof_residence_lib::PublicValuesStruct;
-use ethers_core::types::{RecoveryMessage, Signature, H160, H256, Address};
-use ethers_core::abi::{decode, ParamType, Token};
-use ethers_core::utils::keccak256;
+use ethers_core::types::{Signature, H160, H256, Address};
+use ethers_core::abi::{decode, ParamType};
 use serde::{Deserialize, Serialize};
 use regex::Regex;
 use signature_verification::verify_signature;
@@ -36,21 +35,21 @@ pub fn decode_resident_country(data: &Vec<u8>) -> String {
     return resident_country;
 }
 
-pub fn is_valid_atcud(text: &Vec<u8>) -> Option<String> {
+pub fn is_valid_resident_id(text: &Vec<u8>) -> Option<String> {
 
     let param_types = vec![ParamType::String];
     let decoded: Vec<ethers_core::abi::Token> = decode(&param_types, text).expect("Failed to decode data");  // Decode the data
-    let atcud: String = decoded[1].clone().into_string().expect("Failed to parse ATCUD");
-    // ATCUD format: XXXXXXXX-Y+
+    let resident_id: String = decoded[1].clone().into_string().expect("Failed to parse resident_id");
+    // resident_id format: XXXXXXXX-Y+
     // where X is an 8-character series and Y is one or more digits
     let re = Regex::new(r"([A-Z0-9]{8}-\d+)").unwrap();
     
     // Find all matches and return the first valid one
-    let valid_atcud = re.find_iter(&atcud)
+    let valid_resident_id = re.find_iter(&resident_id)
         .map(|m| m.as_str().to_string())
-        .find(|atcud| {
+        .find(|resident_id| {
             // Additional validation can be added here if needed
-            let parts: Vec<&str> = atcud.split('-').collect();
+            let parts: Vec<&str> = resident_id.split('-').collect();
             if parts.len() != 2 {
                 return false;
             }
@@ -64,8 +63,8 @@ pub fn is_valid_atcud(text: &Vec<u8>) -> Option<String> {
             !sequence.is_empty() && sequence.chars().all(|c| c.is_digit(10))
         });
 
-        // TODO: validate from the government's API that the ATCUD is valid
-        valid_atcud
+        // TODO: validate from the government's API that the resident_id is valid
+        valid_resident_id
 }
 
 
@@ -89,7 +88,7 @@ pub fn main() {
 
 
     let recovered_resident_country = decode_resident_country(&message.data);
-     if resident_country != recovered_resident_country  && is_valid_atcud(&message.data).is_none() {
+     if resident_country != recovered_resident_country  && is_valid_resident_id(&message.data).is_none() {
         panic!("Resident country is not India");
     } else {
         let public_values = PublicValuesStruct {
