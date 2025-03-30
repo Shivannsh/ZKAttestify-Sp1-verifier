@@ -1,0 +1,3 @@
+[submodule "examples/proof-of-residence/contracts/lib/forge-std"]
+	path = examples/proof-of-residence/contracts/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std
