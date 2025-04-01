@@ -35,10 +35,9 @@ fn parse_input_data(file_path: &str) -> InputData {
     serde_json::from_str(&json_str).expect("Failed to parse JSON input")
 }
 
-
-
 fn main() {
-    utils::setup_logger();
+    
+    sp1_sdk::utils::setup_logger();
     let start = Instant::now();
     let args = Cli::parse();   
     let input_data = parse_input_data("src/input.json");
