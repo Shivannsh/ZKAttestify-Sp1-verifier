@@ -1,14 +1,13 @@
-mod structs;
 mod signature;
+mod structs;
 use clap::Parser;
-use serde::{Deserialize, Serialize};
-use sp1_sdk::{include_elf, utils, HashableKey, ProverClient, SP1ProofWithPublicValues, SP1Stdin};
 use ethers_core::types::H160;
+use serde::{Deserialize, Serialize};
+use signature::{build_message, create_domain_separator, parse_signature};
+use sp1_sdk::{include_elf, utils, HashableKey, ProverClient, SP1ProofWithPublicValues, SP1Stdin};
 use std::fs;
 use std::time::Instant;
 use structs::InputData;
-use signature::{create_domain_separator, build_message, parse_signature};
-
 
 /// ELF file for the Succinct RISC-V zkVM.
 pub const ADDRESS_ELF: &[u8] = include_elf!("dob-program");
@@ -26,9 +25,17 @@ struct ProofData {
 #[derive(Parser)]
 #[command(name = "zkVM Proof Generator")]
 struct Cli {
-    #[arg(long, default_value_t = false, help = "Generate or use pregenerated proof")]
+    #[arg(
+        long,
+        default_value_t = false,
+        help = "Generate or use pregenerated proof"
+    )]
     prove: bool,
-    #[arg(long, default_value = "plonk", help = "Proof mode (e.g., groth16, plonk)")]
+    #[arg(
+        long,
+        default_value = "plonk",
+        help = "Proof mode (e.g., groth16, plonk)"
+    )]
     mode: String,
 }
 
@@ -41,7 +48,7 @@ fn parse_input_data(file_path: &str) -> InputData {
 fn main() {
     utils::setup_logger();
     let start = Instant::now();
-    let args = Cli::parse();   
+    let args = Cli::parse();
     let input_data = parse_input_data("src/input.json");
 
     // Prepare inputs for zkVM
@@ -54,7 +61,7 @@ fn main() {
     let mut stdin = SP1Stdin::new();
     stdin.write(&signer_address);
     stdin.write(&signature);
-    stdin.write(&(THRESHOLD_AGE));  // threshold age in seconds
+    stdin.write(&(THRESHOLD_AGE)); // threshold age in seconds
     stdin.write(&(chrono::Utc::now().timestamp() as u64));
     stdin.write(&message);
     stdin.write(&domain_separator);
@@ -67,8 +74,16 @@ fn main() {
 
     if args.prove {
         let proof = match args.mode.as_str() {
-            "groth16" => client.prove(&pk, &stdin).groth16().run().expect("Groth16 proof generation failed"),
-            "plonk" => client.prove(&pk, &stdin).plonk().run().expect("Plonk proof generation failed"),
+            "groth16" => client
+                .prove(&pk, &stdin)
+                .groth16()
+                .run()
+                .expect("Groth16 proof generation failed"),
+            "plonk" => client
+                .prove(&pk, &stdin)
+                .plonk()
+                .run()
+                .expect("Plonk proof generation failed"),
             _ => panic!("Invalid proof mode"),
         };
         proof.save(&proof_path).expect("Failed to save proof");
@@ -78,13 +93,16 @@ fn main() {
     let proof = SP1ProofWithPublicValues::load(&proof_path).expect("Failed to load proof");
     let fixture = ProofData {
         proof: hex::encode(proof.bytes()),
-        public_inputs: hex::encode(proof.public_values),
-        vkey_hash: vk.bytes32(),
+        public_inputs: hex::encode(proof.public_values.as_slice()),
+        vkey_hash: vk.bytes32().to_string(),
         mode: args.mode.clone(),
     };
 
-    fs::write(&json_path, serde_json::to_string(&fixture).expect("Failed to serialize proof"))
-        .expect("Failed to write JSON proof");
+    fs::write(
+        &json_path,
+        serde_json::to_string(&fixture).expect("Failed to serialize proof"),
+    )
+    .expect("Failed to write JSON proof");
     let duration = start.elapsed();
     println!("Time elapsed in generating proof is: {:?}", duration);
     println!("Successfully generated JSON proof for the program!");
