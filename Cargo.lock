@@ -4271,7 +4271,6 @@ dependencies = [
  "chrono",
  "ethers-core",
  "proof-residence-lib",
- "regex",
  "serde",
  "sp1-zkvm",
 ]

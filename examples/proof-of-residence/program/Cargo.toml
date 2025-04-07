@@ -11,4 +11,3 @@ proof-residence-lib = { path = "../lib" }
 serde = { version = "1.0", features = ["derive"] }
 ethers-core = { version = "2.0.14" }
 chrono = "=0.4.38"
-regex = "1.5.4"
