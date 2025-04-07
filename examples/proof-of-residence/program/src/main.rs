@@ -13,6 +13,9 @@ use serde::{Deserialize, Serialize};
 use regex::Regex;
 use signature_verification::verify_signature;
 
+// Add this after the imports
+const VALID_COUNTRIES: &[&str] = &["India", "USA", "Canada", "Germany", "France"];
+
 #[derive(Debug, Serialize, Deserialize)]
 struct Attest {
     version: u16,
@@ -37,8 +40,8 @@ pub fn decode_resident_country(data: &Vec<u8>) -> String {
 
 pub fn is_valid_resident_id(text: &Vec<u8>) -> Option<String> {
 
-    let param_types = vec![ParamType::String];
-    let decoded: Vec<ethers_core::abi::Token> = decode(&param_types, text).expect("Failed to decode data");  // Decode the data
+    let param_types = vec![ParamType::String, ParamType::String, ParamType::Uint(32), ParamType::String];
+    let decoded: Vec<ethers_core::abi::Token> = decode(&param_types, text).expect("Failed to decode data");
     let resident_id: String = decoded[1].clone().into_string().expect("Failed to parse resident_id");
     // resident_id format: XXXXXXXX-Y+
     // where X is an 8-character series and Y is one or more digits
@@ -72,7 +75,6 @@ pub fn main() {
     // Read inputs from the zkVM environment.
     let signer_address: H160 = sp1_zkvm::io::read();
     let signature: Signature = sp1_zkvm::io::read();
-    let resident_country: String = sp1_zkvm::io::read();    
     let current_timestamp: u64 = sp1_zkvm::io::read();
     let message: Attest = sp1_zkvm::io::read();
     let domain_separator: H256 = sp1_zkvm::io::read();
@@ -88,13 +90,13 @@ pub fn main() {
 
 
     let recovered_resident_country = decode_resident_country(&message.data);
-     if resident_country != recovered_resident_country  && is_valid_resident_id(&message.data).is_none() {
-        panic!("Resident country is not India");
+    if !VALID_COUNTRIES.contains(&recovered_resident_country.as_str()) || is_valid_resident_id(&message.data).is_none() {
+        panic!("Resident country is not valid");
     } else {
         let public_values = PublicValuesStruct {
             signer_address: signer_address_bytes.into(),
             current_timestamp,
-            resident_country: resident_country.to_string(),
+            resident_country: recovered_resident_country.to_string(),
             attest_time: message.time,
             receipent_address: recipient_address_bytes.into(),
             domain_seperator: domain_separator_bytes.into(),

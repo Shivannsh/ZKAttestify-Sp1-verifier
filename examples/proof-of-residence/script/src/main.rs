@@ -3,12 +3,10 @@ mod structs;
 use clap::Parser;
 use dotenv::dotenv;
 use ethers::{
-    core::types::TransactionRequest,
     middleware::SignerMiddleware,
     prelude::*,
     providers::{Http, Middleware, Provider},
-    signers::{LocalWallet, Signer},
-    utils,
+    signers::{LocalWallet, Signer}
 };
 use ethers_contract::abigen;
 use ethers_core::types::H160;
@@ -27,7 +25,7 @@ use structs::InputData;
 pub const PROOF_ADDRESS_ELF: &[u8] = include_elf!("proof-of-residence-program");
 const RESIDENT_COUNTRY: &str = "India";
 
-abigen!(POR_Groth16_Verifier, "/home/gautam/Desktop/test/ZKAttestify-Sp1-verifier/examples/proof-of-residence/contracts/abi/POR_Groth16_Verifier.json",methods{verifyAndAttest(bytes,bytes) as VerifyAndAttest});
+abigen!(POR_Groth16_Verifier, "../contracts/abi/POR_Groth16_Verifier.json",methods{verifyAndAttest(bytes,bytes) as VerifyAndAttest});
 
 #[derive(Serialize, Deserialize)]
 struct ProofData {
