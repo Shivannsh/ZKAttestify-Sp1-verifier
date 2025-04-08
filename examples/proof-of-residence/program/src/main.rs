@@ -49,7 +49,6 @@ pub fn main() {
     // Read inputs from the zkVM environment.
     let signer_address: H160 = sp1_zkvm::io::read();
     let signature: Signature = sp1_zkvm::io::read();
-    let _: String = sp1_zkvm::io::read();
     let current_timestamp: u64 = sp1_zkvm::io::read();
     let message: Attest = sp1_zkvm::io::read();
     let domain_separator: H256 = sp1_zkvm::io::read();

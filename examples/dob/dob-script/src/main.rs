@@ -2,25 +2,19 @@ mod signature;
 mod structs;
 use clap::Parser;
 use ethers_core::types::H160;
-use serde::{Deserialize, Serialize};
 use signature::{build_message, create_domain_separator, parse_signature};
 use sp1_sdk::{include_elf, utils, HashableKey, ProverClient, SP1ProofWithPublicValues, SP1Stdin};
 use std::fs;
 use std::time::Instant;
-use structs::InputData;
+use structs::{InputData,ProofData};
+mod onchain_verify;
+use onchain_verify::verify_contract;
+
 
 /// ELF file for the Succinct RISC-V zkVM.
 pub const ADDRESS_ELF: &[u8] = include_elf!("dob-program");
 const YEAR_IN_SECONDS: u64 = 365 * 24 * 60 * 60;
 const THRESHOLD_AGE: u64 = 18 * YEAR_IN_SECONDS;
-
-#[derive(Serialize, Deserialize)]
-struct ProofData {
-    proof: String,         // hex string
-    public_inputs: String, // hex string
-    vkey_hash: String,     // vk.bytes32()
-    mode: String,
-}
 
 #[derive(Parser)]
 #[command(name = "zkVM Proof Generator")]
@@ -45,7 +39,8 @@ fn parse_input_data(file_path: &str) -> InputData {
 }
 
 // Main function for generating zkVM proofs
-fn main() {
+#[tokio::main]
+async fn main() {
     utils::setup_logger();
     let start = Instant::now();
     let args = Cli::parse();
@@ -106,4 +101,7 @@ fn main() {
     let duration = start.elapsed();
     println!("Time elapsed in generating proof is: {:?}", duration);
     println!("Successfully generated JSON proof for the program!");
+
+     // Call the contract verification function
+     verify_contract(fixture).await.expect("Contract verification failed");
 }

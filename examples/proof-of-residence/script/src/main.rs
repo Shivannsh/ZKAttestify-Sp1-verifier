@@ -2,40 +2,23 @@ mod signature;
 mod structs;
 use clap::Parser;
 use dotenv::dotenv;
-use ethers::{
-    core::types::TransactionRequest,
-    middleware::SignerMiddleware,
-    prelude::*,
-    providers::{Http, Middleware, Provider},
-    signers::{LocalWallet, Signer},
-    utils,
-};
 use ethers_contract::abigen;
 use ethers_core::types::H160;
 use eyre::Result;
-use serde::{Deserialize, Serialize};
 use signature::{build_message, create_domain_separator, parse_signature};
 use sp1_sdk::{
     include_elf, utils::setup_logger, HashableKey, ProverClient, SP1ProofWithPublicValues, SP1Stdin,
 };
-use std::convert::TryFrom;
 use std::fs;
 use std::time::Instant;
-use structs::InputData;
+use structs::{InputData,ProofData};
+mod onchain_verify;
+use onchain_verify::verify_contract;
 
 /// The ELF (executable and linkable format) file for the Succinct RISC-V zkVM.
 pub const PROOF_ADDRESS_ELF: &[u8] = include_elf!("proof-of-residence-program");
-const RESIDENT_COUNTRY: &str = "India";
 
-abigen!(POR_Groth16_Verifier, "/home/gautam/Desktop/test/ZKAttestify-Sp1-verifier/examples/proof-of-residence/contracts/abi/POR_Groth16_Verifier.json",methods{verifyAndAttest(bytes,bytes) as VerifyAndAttest});
-
-#[derive(Serialize, Deserialize)]
-struct ProofData {
-    proof: String,         // hex string
-    public_inputs: String, // hex string
-    vkey_hash: String,     // vk.bytes32()
-    mode: String,
-}
+abigen!(Groth16_Verifier, "examples/solidity-verifier/abi/Groth16_Verifier.json",methods{verifyAndAttest(bytes,bytes) as VerifyAndAttest});
 
 #[derive(Parser)]
 #[command(name = "zkVM Proof Generator")]
@@ -58,6 +41,7 @@ fn parse_input_data(file_path: &str) -> InputData {
     let json_str = fs::read_to_string(file_path).expect("Failed to read input file");
     serde_json::from_str(&json_str).expect("Failed to parse JSON input")
 }
+
 #[tokio::main]
 async fn main() -> Result<()> {
     setup_logger();
@@ -76,7 +60,6 @@ async fn main() -> Result<()> {
     let mut stdin = SP1Stdin::new();
     stdin.write(&signer_address);
     stdin.write(&signature);
-    stdin.write(&RESIDENT_COUNTRY.to_string());
     stdin.write(&(chrono::Utc::now().timestamp() as u64));
     stdin.write(&message);
     stdin.write(&domain_separator);
@@ -129,37 +112,8 @@ async fn main() -> Result<()> {
     println!("Time elapsed in generating proof is: {:?}", duration);
     println!("Successfully generated JSON proof for the program!");
 
-    // connect to the network
-    let provider = Provider::<Http>::try_from(std::env::var("RPC_URL").expect("SET RPC URL"))?;
+    // Call the contract verification function
+    verify_contract(fixture).await?;
 
-    let chain_id = provider.get_chainid().await?;
-    // define the signer
-    // for simplicity replace the private key (without 0x), ofc it always recommended to load it from an .env file or external vault
-    let wallet: LocalWallet = std::env::var("PRIVATE_KEY")
-        .expect("Please SET PRIVATE KEY")
-        .parse::<LocalWallet>()?
-        .with_chain_id(chain_id.as_u64());
-
-    let contract_address = std::env::var("CONTRACT_ADDRESS")
-        .expect("Please SET CONTRACT ADDRESS")
-        .parse::<H160>()
-        .expect("Invalid contract address format");
-
-    println!("Wallet Sender: {:?}", wallet.address());
-
-    let signer = SignerMiddleware::new(provider.clone(), wallet.clone());
-
-    let por_groth16_verifier = POR_Groth16_Verifier::new(contract_address, signer.into());
-
-    let proof_bytes = Bytes::from(hex::decode(&fixture.proof)?);
-    let public_inputs_bytes = Bytes::from(hex::decode(&fixture.public_inputs)?);
-
-    let receipt = por_groth16_verifier
-        .VerifyAndAttest(public_inputs_bytes, proof_bytes)
-        .send()
-        .await?
-        .await?;
-
-    println!("Receipt: {:?}", receipt);
     Ok(())
 }

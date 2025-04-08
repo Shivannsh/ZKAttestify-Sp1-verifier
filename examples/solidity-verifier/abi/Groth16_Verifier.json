@@ -1,0 +1,29 @@
+[
+  {
+    "inputs": [
+      { "internalType": "address", "name": "_verifier", "type": "address" },
+      { "internalType": "contract IEAS", "name": "eas", "type": "address" }
+    ],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  { "inputs": [], "name": "InvalidEAS", "type": "error" },
+  {
+    "inputs": [],
+    "name": "verifier",
+    "outputs": [{ "internalType": "address", "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "internalType": "bytes32", "name": "_ProgramVKey", "type": "bytes32" },
+      { "internalType": "bytes", "name": "_publicValues", "type": "bytes" },
+      { "internalType": "bytes", "name": "_proofBytes", "type": "bytes" }
+    ],
+    "name": "verifyAndAttest",
+    "outputs": [{ "internalType": "bytes32", "name": "", "type": "bytes32" }],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  }
+]

@@ -66,3 +66,11 @@ pub struct MessageData {
     pub data: String,
     pub salt: String,
 }
+
+#[derive(Serialize, Deserialize)]
+pub struct ProofData {
+    pub proof: String,         // hex string
+    pub public_inputs: String, // hex string
+    pub vkey_hash: String,     // vk.bytes32()
+    pub mode: String,
+}
