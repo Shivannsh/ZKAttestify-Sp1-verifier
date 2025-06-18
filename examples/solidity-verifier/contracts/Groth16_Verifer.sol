@@ -5,9 +5,9 @@ import {ISP1Verifier} from "https://github.com/succinctlabs/sp1-contracts/blob/m
 import {IEAS, AttestationRequest, AttestationRequestData} from "@ethereum-attestation-service/eas-contracts/contracts/IEAS.sol";
 import {NO_EXPIRATION_TIME, EMPTY_UID} from "@ethereum-attestation-service/eas-contracts/contracts/Common.sol";
 
-/// @title ProofOfResidence.
-/// @author Succinct Labs
-/// @notice This contract implements a simple example of verifying the proof of residence of an individual.
+/// @title Groth16_Verifer.
+/// @author Succinct Labs And EAS
+/// @notice This contract implements a simple example of verifying proof of any type and attesting it onchain.
 
 contract Groth16_Verifier {
     /// @notice The address of the SP1 verifier contract.

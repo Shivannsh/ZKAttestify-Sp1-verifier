@@ -43,9 +43,14 @@ pub async fn verify_contract(fixture: ProofData) -> Result<()> {
         .expect("vkey_hash must be 32 bytes");
     println!("Vkey Hash: {:?}", &vkey_hash_bytes);
     
-
+    // Get current gas price
+    let gas_price = provider.get_gas_price().await?;
+    
+    
     let receipt = groth16_verifier
         .VerifyAndAttest(vkey_hash_bytes, public_inputs_bytes, proof_bytes)
+        .gas(5000000) // Set a reasonable gas limit
+        .gas_price(gas_price)
         .send()
         .await?
         .await?;
