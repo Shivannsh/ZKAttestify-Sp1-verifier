@@ -4,7 +4,7 @@ name = "proof-of-residence-script"
 edition = "2021"
 
 [dependencies]
-sp1-sdk.workspace = true
+sp1-sdk = { workspace = true }
 serde_json = { version = "1.0", default-features = false, features = ["alloc"] }
 serde = { version = "1.0", default-features = false, features = ["derive"] }
 clap = { version = "4.0", features = ["derive", "env"] }
@@ -22,5 +22,4 @@ tokio = { version = "1.28.2", features = ["full"] }
 dotenv = "0.15.0"
 
 [build-dependencies]
-sp1-build.workspace = true
-sp1-helper = "2.0.0"
+sp1-build = { workspace = true }

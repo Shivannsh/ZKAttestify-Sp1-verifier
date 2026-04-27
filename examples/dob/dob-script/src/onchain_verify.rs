@@ -1,3 +1,5 @@
+use crate::structs::ProofData;
+use dotenv::dotenv;
 use ethers::{
     middleware::SignerMiddleware,
     prelude::*,
@@ -7,8 +9,6 @@ use ethers::{
 use ethers_contract::abigen;
 use ethers_core::types::H160;
 use eyre::Result;
-use crate::structs::ProofData;
-use dotenv::dotenv;
 
 abigen!(Groth16_Verifier, "examples/solidity-verifier/abi/Groth16_Verifier.json",methods{verifyAndAttest(bytes32,bytes,bytes) as VerifyAndAttest});
 
@@ -44,7 +44,6 @@ pub async fn verify_contract(fixture: ProofData) -> Result<()> {
         .try_into()
         .expect("vkey_hash must be 32 bytes");
     println!("Vkey Hash: {:?}", &vkey_hash_bytes);
-    
 
     let receipt = groth16_verifier
         .VerifyAndAttest(vkey_hash_bytes, public_inputs_bytes, proof_bytes)

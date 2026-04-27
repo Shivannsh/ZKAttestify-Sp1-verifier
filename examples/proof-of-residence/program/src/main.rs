@@ -63,7 +63,8 @@ pub fn main() {
     let domain_separator_bytes: [u8; 32] = domain_separator.into();
 
     let recovered_resident_country = decode_resident_country(&message.data);
-    if !VALID_COUNTRIES.contains(&recovered_resident_country.as_str().to_lowercase().as_str()) {  //lowercase so that it is case insensitive
+    if !VALID_COUNTRIES.contains(&recovered_resident_country.as_str().to_lowercase().as_str()) {
+        //lowercase so that it is case insensitive
         panic!("Resident country is not valid");
     } else {
         let public_values = PublicValuesStruct {

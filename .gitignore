@@ -14,3 +14,9 @@ elf
 llvm.sh
 
 .DS_Store
+
+# local cargo cache (created by temporary CARGO_HOME overrides)
+.cargo-home/
+
+# Foundry deploy scaffolding (not part of the project)
+examples/solidity-deploy/

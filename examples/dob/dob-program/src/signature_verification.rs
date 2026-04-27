@@ -27,7 +27,7 @@ fn hash_message(domain_separator: &H256, message: &Attest) -> H256 {
 
     // Create EIP712 digest with domain separator
     keccak256(
-        &[0x19, 0x01]  // EIP712 prefix
+        &[0x19, 0x01] // EIP712 prefix
             .iter()
             .chain(domain_separator.as_bytes())
             .chain(&keccak256(&encoded_message))
@@ -46,7 +46,7 @@ pub fn verify_signature(
 ) -> Result<(), &'static str> {
     // Calculate message digest
     let calculated_digest = hash_message(domain_separator, message);
-    
+
     // Recover signer address from signature
     let recovered_address = signature
         .recover(RecoveryMessage::Hash(calculated_digest))

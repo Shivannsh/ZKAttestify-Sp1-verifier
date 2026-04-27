@@ -1,8 +1,8 @@
-use ethers_core::types::{ H256, Signature};
+use crate::structs::{Attest, InputData};
 use ethers_core::abi::Token;
 use ethers_core::types::transaction::eip712::EIP712Domain;
+use ethers_core::types::{Signature, H256};
 use ethers_core::utils::keccak256;
-use crate::structs::{Attest, InputData};
 
 // Generates EIP712 domain separator hash
 pub fn domain_separator(domain: &EIP712Domain, type_hash: H256) -> H256 {
@@ -21,13 +21,18 @@ pub fn create_domain_separator(input_data: &InputData) -> H256 {
     let domain = ethers_core::types::transaction::eip712::EIP712Domain {
         name: Some(input_data.sig.domain.name.clone()),
         version: Some(input_data.sig.domain.version.clone()),
-        chain_id: Some(ethers_core::types::U256::from_dec_str(&input_data.sig.domain.chain_id).unwrap()),
+        chain_id: Some(
+            ethers_core::types::U256::from_dec_str(&input_data.sig.domain.chain_id).unwrap(),
+        ),
         verifying_contract: Some(input_data.sig.domain.verifying_contract.parse().unwrap()),
         salt: None,
     };
     domain_separator(
         &domain,
-        ethers_core::utils::keccak256(b"EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)").into(),
+        ethers_core::utils::keccak256(
+            b"EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)",
+        )
+        .into(),
     )
 }
 

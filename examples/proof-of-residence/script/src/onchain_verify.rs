@@ -1,3 +1,4 @@
+use crate::structs::ProofData;
 use ethers::{
     middleware::SignerMiddleware,
     prelude::*,
@@ -7,7 +8,6 @@ use ethers::{
 use ethers_contract::abigen;
 use ethers_core::types::H160;
 use eyre::Result;
-use crate::structs::ProofData;
 
 abigen!(Groth16_Verifier, "examples/solidity-verifier/abi/Groth16_Verifier.json",methods{verifyAndAttest(bytes32,bytes,bytes) as VerifyAndAttest});
 
@@ -36,17 +36,16 @@ pub async fn verify_contract(fixture: ProofData) -> Result<()> {
 
     let proof_bytes = Bytes::from(hex::decode(&fixture.proof)?);
     let public_inputs_bytes = Bytes::from(hex::decode(&fixture.public_inputs)?);
-    
+
     let vkey_hash = fixture.vkey_hash.trim_start_matches("0x");
     let vkey_hash_bytes = hex::decode(vkey_hash)?
         .try_into()
         .expect("vkey_hash must be 32 bytes");
     println!("Vkey Hash: {:?}", &vkey_hash_bytes);
-    
+
     // Get current gas price
     let gas_price = provider.get_gas_price().await?;
-    
-    
+
     let receipt = groth16_verifier
         .VerifyAndAttest(vkey_hash_bytes, public_inputs_bytes, proof_bytes)
         .gas(5000000) // Set a reasonable gas limit

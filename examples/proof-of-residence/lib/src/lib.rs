@@ -11,6 +11,3 @@ sol! {
         bytes32 domain_seperator;
     }
 }
-
-
-
